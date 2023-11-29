@@ -1,21 +1,20 @@
 import Game from './components/Game'
-
 import './App.css'
 
 const choicesList = [
   {
     id: 'ROCK',
-    imageUrl:
+    image:
       'https://assets.ccbp.in/frontend/react-js/rock-paper-scissor/rock-image.png',
   },
   {
     id: 'SCISSORS',
-    imageUrl:
+    image:
       'https://assets.ccbp.in/frontend/react-js/rock-paper-scissor/scissor-image.png',
   },
   {
     id: 'PAPER',
-    imageUrl:
+    image:
       'https://assets.ccbp.in/frontend/react-js/rock-paper-scissor/paper-image.png',
   },
 ]

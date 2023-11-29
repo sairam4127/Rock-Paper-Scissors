@@ -1,228 +1,168 @@
-import {RiCloseLine} from 'react-icons/ri'
-
-import Popup from 'reactjs-popup'
-
 import {Component} from 'react'
+import Popup from 'reactjs-popup'
+import {RiCloseLine} from 'react-icons/ri'
+import Buttons from '../Buttons'
+import GameResultView from '../GameResultView'
 import 'reactjs-popup/dist/index.css'
-
 import {
-  MainBg,
-  TypesParaCont,
-  ParaH1,
-  Para,
-  ScoreCont,
-  IconsCont,
-  FirstIconCont,
-  IconBtn,
-  IconImg,
-  RulesBtn,
-  RulesCont,
-  PopupCont,
-  PopupImg,
-  Break,
-} from './styled'
+  MainContainer,
+  ScoreContainer,
+  ItemsContainer,
+  Heading,
+  ScoreCardContainer,
+  ParagraphScore,
+  ScoreSpan,
+  ItemsImagesContainer,
+  // eslint-disable-next-line no-unused-vars
+  PlayAgainButton,
+  PopUpContainer,
+  PopUpButton,
+  RulesImageContainer,
+  RulesImage,
+  CloseLineContainer,
+  CloseLineButton,
+} from './styledComponents'
 
 class Game extends Component {
   state = {
+    showResult: false,
+    myChoice: {},
+    apponentChoice: {},
     score: 0,
-    playingState: true,
-    yourChoice: '',
-    opponentChoice: '',
-    resultStr: '',
+    resultMessage: '',
   }
 
-  playAgain = () => {
-    this.setState({playingState: true})
+  onClickPlayAgain = () => this.setState({showResult: false})
+
+  onGetResult = () => {
+    const {myChoice, apponentChoice, resultMessage} = this.state
+    // eslint-disable-next-line no-unused-vars
+    const {id, image} = apponentChoice
+    return (
+      <GameResultView
+        myChoice={myChoice}
+        apponentChoice={apponentChoice}
+        resultMessage={resultMessage}
+        playAgain={this.onClickPlayAgain}
+      />
+    )
   }
 
-  scoreUpdate = (yourChoice, randomIndex) => {
-    if (yourChoice === 0 && randomIndex === 1) {
-      return 'YOU WON'
-    }
-    if (yourChoice === 0 && randomIndex === 2) {
-      return 'YOU LOSE'
-    }
-    if (yourChoice === 1 && randomIndex === 0) {
-      return 'YOU LOSE'
-    }
-    if (yourChoice === 1 && randomIndex === 2) {
-      return 'YOU WON'
-    }
-    if (yourChoice === 2 && randomIndex === 0) {
-      return 'YOU WON'
-    }
-    if (yourChoice === 2 && randomIndex === 1) {
-      return 'YOU LOSE'
-    }
-    return 'IT IS DRAW'
-  }
-
-  scoreAndOppGenerator = yourChoice => {
+  onGetButtonId = (id, image) => {
     const {choicesList} = this.props
-    const randomIndex = Math.floor(Math.random() * choicesList.length)
-    const ScoreUpdStatus = this.scoreUpdate(yourChoice, randomIndex)
-    let scoreupd
-    if (ScoreUpdStatus === 'YOU WON') {
-      scoreupd = 1
-    } else if (ScoreUpdStatus === 'YOU LOSE') {
-      scoreupd = -1
+    const number = Math.floor(Math.random() * choicesList.length)
+    if (choicesList[number].id === 'ROCK' && id === 'SCISSORS') {
+      this.setState(prevState => ({
+        showResult: true,
+        myChoice: [id, image],
+        apponentChoice: choicesList[number],
+        score: prevState.score - 1,
+        resultMessage: 'YOU LOSE',
+      }))
+    } else if (choicesList[number].id === 'ROCK' && id === 'PAPER') {
+      this.setState(prevState => ({
+        showResult: true,
+        myChoice: [id, image],
+        apponentChoice: choicesList[number],
+        score: prevState.score + 1,
+        resultMessage: 'YOU WON',
+      }))
+    } else if (choicesList[number].id === 'SCISSORS' && id === 'ROCK') {
+      this.setState(prevState => ({
+        showResult: true,
+        myChoice: [id, image],
+        apponentChoice: choicesList[number],
+        score: prevState.score + 1,
+        resultMessage: 'YOU WON',
+      }))
+    } else if (choicesList[number].id === 'SCISSORS' && id === 'PAPER') {
+      this.setState(prevState => ({
+        showResult: true,
+        myChoice: [id, image],
+        apponentChoice: choicesList[number],
+        score: prevState.score - 1,
+        resultMessage: 'YOU LOSE',
+      }))
+    } else if (choicesList[number].id === 'PAPER' && id === 'ROCK') {
+      this.setState(prevState => ({
+        showResult: true,
+        myChoice: [id, image],
+        apponentChoice: choicesList[number],
+        score: prevState.score - 1,
+        resultMessage: 'YOU LOSE',
+      }))
+    } else if (choicesList[number].id === 'PAPER' && id === 'SCISSORS') {
+      this.setState(prevState => ({
+        showResult: true,
+        myChoice: [id, image],
+        apponentChoice: choicesList[number],
+        score: prevState.score + 1,
+        resultMessage: 'YOU WON',
+      }))
     } else {
-      scoreupd = 0
+      this.setState({
+        showResult: true,
+        myChoice: [id, image],
+        apponentChoice: choicesList[number],
+        resultMessage: 'IT IS DRAW',
+      })
     }
-    this.setState(prevState => ({
-      score: prevState.score + scoreupd,
-      opponentChoice: choicesList[randomIndex].imageUrl,
-      resultStr: ScoreUpdStatus,
-    }))
   }
 
-  onClickedSecondBtn = () => {
+  onGetImages = () => {
     const {choicesList} = this.props
-    this.scoreAndOppGenerator(1)
-    this.setState({yourChoice: choicesList[1].imageUrl, playingState: false})
-  }
-
-  onClickedThirdBtn = () => {
-    const {choicesList} = this.props
-    this.scoreAndOppGenerator(2)
-    this.setState({yourChoice: choicesList[2].imageUrl, playingState: false})
-  }
-
-  onClickedFirstBtn = () => {
-    const {choicesList} = this.props
-    this.scoreAndOppGenerator(0)
-    this.setState({yourChoice: choicesList[0].imageUrl, playingState: false})
+    return (
+      <ItemsImagesContainer>
+        {choicesList.map(eachItem => (
+          <Buttons
+            key={eachItem.id}
+            buttonDetails={eachItem}
+            onGetId={this.onGetButtonId}
+          />
+        ))}
+      </ItemsImagesContainer>
+    )
   }
 
   render() {
-    const {choicesList} = this.props
-    const {
-      score,
-      playingState,
-      yourChoice,
-      opponentChoice,
-      resultStr,
-    } = this.state
+    // eslint-disable-next-line no-unused-vars
+    const {showResult, score, myChoice, apponentChoice} = this.state
     return (
-      <MainBg
-        border="none"
-        direction="column"
-        backGroundColor="#223a5f"
-        height={100}
-        padding={30}
-        width={100}
-      >
-        <MainBg
-          border="#ffffff solid 2px"
-          direction="row"
-          backGroundColor="transparent"
-          height={25}
-          radius={20}
-          padding={30}
-          width={75}
-        >
-          <TypesParaCont>
-            <ParaH1>
-              Rock <Break />
-              Paper
-              <Break /> Scissors
-            </ParaH1>
-          </TypesParaCont>
-          <ScoreCont>
-            <Para>Score</Para>
-            <Para>{score}</Para>
-          </ScoreCont>
-        </MainBg>
-        {playingState ? (
-          <IconsCont>
-            <FirstIconCont>
-              <IconBtn
-                type="button"
-                onClick={this.onClickedFirstBtn}
-                data-testid="rockButton"
-              >
-                <IconImg
-                  src={choicesList[0].imageUrl}
-                  alt={choicesList[0].id}
-                />{' '}
-              </IconBtn>
-              <IconBtn
-                type="button"
-                onClick={this.onClickedSecondBtn}
-                data-testid="scissorsButton"
-              >
-                <IconImg
-                  src={choicesList[1].imageUrl}
-                  alt={choicesList[1].id}
-                />{' '}
-              </IconBtn>
-            </FirstIconCont>
-            <FirstIconCont>
-              {' '}
-              <IconBtn
-                type="button"
-                onClick={this.onClickedThirdBtn}
-                data-testid="paperButton"
-              >
-                <IconImg
-                  src={choicesList[2].imageUrl}
-                  alt={choicesList[2].id}
-                />{' '}
-              </IconBtn>{' '}
-            </FirstIconCont>
-          </IconsCont>
-        ) : (
-          <IconsCont>
-            <RulesCont>
-              {' '}
-              <IconBtn>
-                <Para>Rock</Para>
-                <IconImg src={yourChoice} alt="your choice" />{' '}
-              </IconBtn>
-              <IconBtn>
-                <Para>Opponent</Para>
-                <IconImg src={opponentChoice} alt="opponent choice" />{' '}
-              </IconBtn>
-            </RulesCont>
-            <IconsCont>
-              <Para>{resultStr}</Para>
-              <RulesBtn type="button" align="center" onClick={this.playAgain}>
-                Play Again
-              </RulesBtn>
-            </IconsCont>
-          </IconsCont>
-        )}
-
-        <IconsCont>
-          <Popup
-            modal
-            trigger={
-              <RulesBtn type="button" align="flex-end">
-                Rules
-              </RulesBtn>
-            }
-          >
+      <MainContainer>
+        <ScoreContainer>
+          <ItemsContainer>
+            <Heading>
+              ROCK
+              <br />
+              PAPER
+              <br />
+              SCISSORS
+            </Heading>
+          </ItemsContainer>
+          <ScoreCardContainer>
+            <ParagraphScore>Score</ParagraphScore>
+            <ScoreSpan>{score}</ScoreSpan>
+          </ScoreCardContainer>
+        </ScoreContainer>
+        {showResult ? this.onGetResult() : this.onGetImages()}
+        <PopUpContainer>
+          <Popup modal trigger={<PopUpButton type="button">Rules</PopUpButton>}>
             {close => (
-              <>
-                <PopupCont>
-                  <RulesBtn
-                    type="button"
-                    align="flex-end"
-                    onClick={() => close()}
-                  >
-                    {}
-                    <RiCloseLine size={30} />
-                  </RulesBtn>
-                  <PopupImg
-                    src="https://assets.ccbp.in/frontend/react-js/rock-paper-scissor/rules-image.png"
-                    alt="rules"
-                  />
-                </PopupCont>
-              </>
+              <RulesImageContainer>
+                <CloseLineContainer>
+                  <CloseLineButton type="button" onClick={() => close()}>
+                    <RiCloseLine />
+                  </CloseLineButton>
+                </CloseLineContainer>
+                <RulesImage
+                  src="https://assets.ccbp.in/frontend/react-js/rock-paper-scissor/rules-image.png"
+                  alt="rules"
+                />
+              </RulesImageContainer>
             )}
           </Popup>
-        </IconsCont>
-      </MainBg>
+        </PopUpContainer>
+      </MainContainer>
     )
   }
 }
